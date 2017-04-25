@@ -15,9 +15,6 @@ struct Point {
         struct { T x, y, z; };
         std::array<T,3> coords;
     };
-    inline T volume(){
-        return x*y*z;
-    }
 
     template <typename T1>
     inline Point<T> operator=(Point<T1> p){
@@ -29,9 +26,10 @@ struct Point {
     inline Point<T> operator+=(Point<T1> p){
         for(int i = 0; i < 3; i++)
             coords[i] += (T)p.coords[i];
-    };
+        return *this;
+    }
 
-    // computes L2 norm of input array
+    // computes L2 norm
     T normal(){ return std::sqrt(x*x + y*y + z*z); };
 
 
@@ -50,7 +48,7 @@ struct Point {
 };
 
 template <typename T>
-bool operator < (Point<T> lhs,Point<T> rhs){
+bool operator < (const Point<T> lhs, const Point<T> rhs) {
     for( int i = 0; i < lhs.coords.size(); i++){
         if(!(lhs.coords[i] < rhs.coords[i]) ) return false;
     }
@@ -58,7 +56,7 @@ bool operator < (Point<T> lhs,Point<T> rhs){
 };
 
 template <typename T>
-bool operator > (Point<T> lhs,Point<T> rhs){
+bool operator > (const Point<T> lhs, const Point<T> rhs) {
     for( int i = 0; i < lhs.coords.size(); i++){
         if(!(lhs.coords[i] > rhs.coords[i]) ) return false;
     }
@@ -66,7 +64,7 @@ bool operator > (Point<T> lhs,Point<T> rhs){
 };
 
 template <typename T>
-bool operator <= (Point<T> lhs,Point<T> rhs){
+bool operator <= (const Point<T> lhs, const Point<T> rhs)  {
     for( int i = 0; i < lhs.coords.size(); i++){
         if(!(lhs.coords[i] <= rhs.coords[i]) ) return false;
     }
@@ -74,7 +72,7 @@ bool operator <= (Point<T> lhs,Point<T> rhs){
 };
 
 template <typename T>
-bool operator >= (Point<T> lhs,Point<T> rhs){
+bool operator >= (const Point<T> lhs, const Point<T> rhs) {
     for( int i = 0; i < lhs.coords.size(); i++){
         if(!(lhs.coords[i] >= rhs.coords[i]) ) return false;
     }
@@ -82,7 +80,7 @@ bool operator >= (Point<T> lhs,Point<T> rhs){
 };
 
 template <typename T>
-bool operator == (Point<T> lhs,Point<T> rhs){
+bool operator == (const Point<T> lhs, const Point<T> rhs) {
     for( int i = 0; i < lhs.coords.size(); i++){
         if(!(lhs.coords[i] == rhs.coords[i]) ) return false;
     }
@@ -90,15 +88,15 @@ bool operator == (Point<T> lhs,Point<T> rhs){
 };
 
 template <typename T>
-bool operator != (Point<T> lhs,Point<T> rhs){
+bool operator != (const Point<T> lhs, const Point<T> rhs) {
     for( int i = 0; i < lhs.coords.size(); i++){
         if(!(lhs.coords[i] != rhs.coords[i]) ) return false;
     }
     return true;
 };
 
-template <typename T>
-Point<T> operator+(Point<T> lhs,Point<T> rhs){
+template <typename T, typename T1>
+Point<T> operator + (const Point<T> lhs, const Point<T1> rhs)  {
     Point<T> result;
     for( int i = 0; i < lhs.coords.size(); i++){
         result.coords[i] = lhs.coords[i] + rhs.coords[i];
@@ -106,8 +104,8 @@ Point<T> operator+(Point<T> lhs,Point<T> rhs){
     return result;
 };
 
-template <typename T>
-Point<T> operator-(Point<T> lhs,Point<T> rhs){
+template <typename T, typename T1>
+Point<T> operator - (const Point<T> lhs, const Point<T1> rhs)  {
     Point<T> result;
     for( int i = 0; i < lhs.coords.size(); i++){
         result.coords[i] = lhs.coords[i] - rhs.coords[i];
@@ -116,7 +114,7 @@ Point<T> operator-(Point<T> lhs,Point<T> rhs){
 };
 
 template <typename T>
-Point<T> operator/(Point<T> lhs,Point<T> rhs){
+Point<T> operator/(const Point<T> lhs, const Point<T> rhs)  {
     Point<T> result;
     for( int i = 0; i < lhs.coords.size(); i++){
         result.coords[i] = lhs.coords[i] / rhs.coords[i];
@@ -125,7 +123,7 @@ Point<T> operator/(Point<T> lhs,Point<T> rhs){
 };
 
 template <typename T, typename T1>
-Point<T> operator/(Point<T> lhs,T1 rhs){
+Point<T> operator/(const Point<T> lhs, const T1 rhs)  {
     Point<T> result;
     for( int i = 0; i < lhs.coords.size(); i++){
         result.coords[i] = lhs.coords[i] / rhs;
@@ -134,7 +132,7 @@ Point<T> operator/(Point<T> lhs,T1 rhs){
 };
 
 template <typename T, typename T1>
-Point<T> operator*(Point<T> lhs,Point<T1> rhs){
+Point<T> operator*(const Point<T> lhs, const Point<T1> rhs)  {
     Point<T> result;
     for( int i = 0; i < lhs.coords.size(); i++){
         result.coords[i] = lhs.coords[i] * rhs.coords[i];
@@ -142,7 +140,7 @@ Point<T> operator*(Point<T> lhs,Point<T1> rhs){
     return result;
 };
 template <typename T, typename T1>
-Point<T> operator*(Point<T> lhs,T1 rhs){
+Point<T> operator*(const Point<T> lhs, const T1 rhs)  {
     Point<T> result;
     for( int i = 0; i < lhs.coords.size(); i++){
         result.coords[i] = lhs.coords[i] * rhs;
@@ -151,7 +149,7 @@ Point<T> operator*(Point<T> lhs,T1 rhs){
 };
 
 template <typename T, typename T1>
-Point<T> operator*(T1 lhs,Point<T> rhs){
+Point<T> operator*(const T1 lhs, const Point<T> rhs)  {
     Point<T> result;
     for( int i = 0; i < rhs.coords.size(); i++){
         result.coords[i] = lhs * rhs.coords[i];

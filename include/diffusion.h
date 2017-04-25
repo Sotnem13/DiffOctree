@@ -62,16 +62,11 @@ public:
 
     unsigned cells_count;
 
-//    Cell *cells; //array of all 3 dimensional cell
 
-
-    std::vector<Cell> cells;
+    std::vector<Cell> cells;  // array of all 3 dimensional cell
 
 private:
     DiffusionParams params;
-
-//    Space conc;// 3D concentration matrix
-//    float ****conc;
 
 };
 

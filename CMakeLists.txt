@@ -5,11 +5,11 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES
         main.cpp
-        octree.h
-        point.h
-        diffusion.cpp
-        diffusion.h
-        )
+        include/octree.h
+        include/point.h
+        src/diffusion.cpp
+        include/diffusion.h
+        include/octree_iterator.h)
 
 set(SFML_FLAGS "-lsfml-graphics -lsfml-window -lsfml-system")
 

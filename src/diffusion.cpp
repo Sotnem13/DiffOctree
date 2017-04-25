@@ -2,25 +2,31 @@
 // Created by sotnem on 07.04.17.
 //
 
-#include "diffusion.h"
+#include "../include/diffusion.h"
 #include <cmath>
 #include <chrono>
 #include <iostream>
 
+//static const std::array<Point<int>, 6> dv = {{{1, 0, 0}, {-1, 0, 0},
+//                                             {0, 1, 0}, {0, -1, 0},
+//                                             {0, 0, 1}, {0, 0, -1}} };
+
 Diffusion::Diffusion(DiffusionParams params) : params(params), cells(params.finalNumberCells) {
 
-    conc = new ConcMatrix({0,0,0},{params.L,params.L,params.L});
+    conc = new ConcMatrix({0, 0, 0}, {(float)params.L, (float)params.L, (float)params.L});
 
-    cells_count = 1;
-    cells[0].pos = {0.5,0.5,0.5};
+    cells_count = 2;
+    cells[0].pos = {0.58, 0.5, 0.5};
+    cells[1].pos = {0.42, 0.5, 0.5};
     cells[0].divisions = 0;
+    cells[1].divisions = 0;
 
-    for (int i = 0; i < params.finalNumberCells; i++) {
-        Cell &cell = cells[i];
-        cell.pos = {0.5, 0.5, 0.5};
-        cell.currMov = {0, 0, 0};
-        cell.pathTraveled = 0;
-    }
+//    for (int i = 0; i < params.finalNumberCells; i++) {
+//        Cell &cell = cells[i];
+//        cell.pos = {0.5, 0.5, 0.5};
+//        cell.currMov = {0, 0, 0};
+//        cell.pathTraveled = 0;
+//    }/
 
 }
 
@@ -33,18 +39,21 @@ Diffusion::~Diffusion() {
 void Diffusion::produceSubstances() {
 
     // increases the concentration of substances at the location of the cells
-    float sideLength = 1.f/params.L; // length of a side of a diffusion voxel
+//    float sideLength = 1.f/params.L; // length of a side of a diffusion voxel
+    for (int i = 0; i < cells_count; i++) {
+        auto& c = cells[i];
+//    for ( auto& c : cells ) {
+//        ConcMatrix::P p = c.pos/sideLength;
+        ConcMatrix::P p = c.pos*params.L;
 
-    for ( auto& c : cells ) {
-        ConcMatrix::P p = c.pos/sideLength;
-
-        auto concCell = (*conc)(p);
+//        auto concCell = (*conc)(p);
 //        if (c.type==1) {
 //            concCell = (*conc)(p)[0];
 //        }
-        concCell +=0.1;
-        if (concCell > 1) {
-            concCell =1;
+        auto& val = conc->at(p);
+        val += 0.1;
+        if (val > 1) {
+            val = 1;
         }
     }
 }
@@ -53,38 +62,26 @@ void Diffusion::produceSubstances() {
 void Diffusion::runDiffusionStep() {
 //    using namespace std::chrono;
 //    high_resolution_clock clock;
-
-
-
+//
 //    auto begin = clock.now();
 
-    ConcMatrix tempConc(*conc);
-//    memset()
+    const ConcMatrix prevConc(*conc);
+    auto& cell_size = conc->cellSize();
 
-    for( auto& p : tempConc ){
-//        for (int subInd = 0; subInd < 2; subInd++){
-            auto neighbors = tempConc.neighbors(p.first);
-            for( auto& n : neighbors ){
-                auto neighbor = *n;
-//                (*conc)(p.first)[subInd] = neighbor[subInd] - (*p.second)[subInd]*params.D/6;
-//                if( )
-                (*conc)(p.first) = neighbor - (*p.second)*params.D/6;
-                std::cout << (*conc)(p.first) << std::endl;
-                std::cout << n << std::endl;
-            }
-//        }
+    for (auto& p : prevConc) {
+        for (auto &v : dv) {
+            const auto &neighbor = prevConc.at(p.first + v * cell_size);
+            auto delta = (neighbor - p.second) * params.D / 6.f;
+            auto &val = conc->at(p.first);
+            val += delta;
+        }
     }
-//    auto end = clock.now();
-//    auto elapsedTime = duration_cast<duration<double> >(end - begin);
-//    std::cout << "runDiffusionStep took: " << elapsedTime.count() << std::endl;
-
 }
 
 void Diffusion::runDecayStep() {
     // computes the changes in substance concentrations due to decay
-    for( auto& p : *conc){
-        (*p.second) *= (1-params.mu);
-//        (*p.second)[1] *= (1-params.mu);
+    for (auto p : *conc) {
+        p.second *= (1-params.mu);
     }
 }
 
@@ -153,7 +150,7 @@ void Diffusion::runDiffusionClusterStep() {
                 p2.coords[j] = p2.coords[j] > 0 ? p2.coords[j] : 0;
 
 //                grad.coords[j] = ((*conc)(p1)[i] - (*conc)(p2)[i]) / sideLength * (p1 + p2).coords[j];
-                grad.coords[j] = ((*conc)(p1) - (*conc)(p2)) / sideLength * (p1 + p2).coords[j];
+//                grad.coords[j] = ((*conc)(p1) - (*conc)(p2)) / sideLength * (p1 + p2).coords[j];
             }
 //        }
 
